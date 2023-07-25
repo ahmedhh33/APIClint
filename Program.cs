@@ -11,6 +11,10 @@ namespace APIClint
             //string response = await CallAPI();
             //Console.WriteLine(response);
             List<CountryInfo> response = await CallAPI();
+            foreach (CountryInfo country in response)
+            {
+                Console.WriteLine(country);
+            }
         }
         public async  static  Task<List<CountryInfo>> CallAPI()
         {

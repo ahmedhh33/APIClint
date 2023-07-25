@@ -18,5 +18,9 @@ namespace APIClint
             this.capital = capital;
             this.area = area;
         }
+        public override string ToString()
+        {
+            return $"officalName: {officalName} capital: {capital} area: {area} ";
+        }
     }
 }
