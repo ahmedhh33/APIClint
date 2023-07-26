@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design.Serialization;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.Design.Serialization;
 using System.Text;
 using System.Text.Json;
 
@@ -6,50 +7,61 @@ namespace APIClint
 {
     internal class Program
     {
-        static async  Task Main(string[] args)
+        static async Task Main(string[] args)
         {
             //string response = await CallAPI();
             //Console.WriteLine(response);
-            List<CountryInfo> response = await CallAPI();
+
+             List<CountryInfo> response = await CallAPI();
             foreach (CountryInfo country in response)
             {
                 Console.WriteLine(country);
             }
+            //await CallAPI();
         }
-        public async  static  Task<List<CountryInfo>> CallAPI()
+        public async static Task<List<CountryInfo>> CallAPI()
         {
-            String api = "https://restcountries.com/v3.1/all?fields=name,capital,area";
-
-            HttpClient client = new HttpClient();
-            HttpResponseMessage responseMessage = await client.GetAsync(api);
-            List<CountryInfo> countries = new List<CountryInfo>();
-
-            if(responseMessage.IsSuccessStatusCode)
+            try
             {
-                String stringRespons = await responseMessage.Content.ReadAsStringAsync();
-                JsonDocument document = JsonDocument.Parse(stringRespons);
-                JsonElement root = document.RootElement;
+                String api = "https://restcountries.com/v3.1/all?fields=name,capital,area";
 
-                if(root.ValueKind == JsonValueKind.Array) 
+                using (HttpClient client = new HttpClient())
                 {
-                    var enumrator = root.EnumerateArray;
-                    foreach(JsonElement country in root.EnumerateArray())
+                    HttpResponseMessage responseMessage = await client.GetAsync(api);
+                    List<CountryInfo> countries = new List<CountryInfo>();
+
+                    if (responseMessage.IsSuccessStatusCode)
                     {
-                        string capital = "";
-                        if (country.GetProperty("capital").GetArrayLength() > 0)
-                        {
-                            capital = country.GetProperty("capital")[0].GetString();
-                        }
+                        String stringRespons = await responseMessage.Content.ReadAsStringAsync();
+                        //    JsonDocument document = JsonDocument.Parse(stringRespons);
+                        //    JsonElement root = document.RootElement;
 
-                        Double area = country.GetProperty("area").GetDouble();
-                        String officialName = country.GetProperty("name").GetProperty("official").GetString();
-                        countries.Add(new CountryInfo(officialName, capital, area));
+                        //    if(root.ValueKind == JsonValueKind.Array) 
+                        //    {
+                        //        var enumrator = root.EnumerateArray;
+                        //        foreach(JsonElement country in root.EnumerateArray())
+                        //        {
+                        //            string capital = "";
+                        //            if (country.GetProperty("capital").GetArrayLength() > 0)
+                        //            {
+                        //                capital = country.GetProperty("capital")[0].GetString();
+                        //            }
+
+                        //            Double area = country.GetProperty("area").GetDouble();
+                        //            String officialName = country.GetProperty("name").GetProperty("official").GetString();
+                        //            countries.Add(new CountryInfo(officialName, capital, area));
+                        //        }
+                        //    }
+                        List<CountryInfo> m = JsonConvert.DeserializeObject<List<CountryInfo>>(stringRespons);
+                        //Console.WriteLine(m.Count);
                     }
+                    return countries;
                 }
-                
+            } 
+            catch (HttpRequestException ex) 
+            { 
+                throw new Exception(ex.Message);
             }
-            return countries;
-
         }
     }
 }
